@@ -1,4 +1,4 @@
-from structures.node import Node 
+from node import Node 
 
 class Queue:
     """ A class which defines a queue. """

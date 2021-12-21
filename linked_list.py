@@ -1,4 +1,4 @@
-from structures.node import Node 
+from node import Node 
 
 class LinkedList:
     """ A class which describes a linked list"""
