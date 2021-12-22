@@ -9,6 +9,8 @@ class Graph:
         self._graph = []
         self._edges = 0
         self._level = []
+        self._connected_components = []
+        self._connected_marker = []
 
         with open(file) as reader:
             line  = reader.readline()
@@ -18,6 +20,7 @@ class Graph:
 
             # creates a vector with size = number of vertices and 0 in every position
             self._degree = [0 for x in range(self._vertices)] 
+            self._connected_marker = [0 for x in range(self._vertices)] 
 
              # updates the degree vector with the actual value for each vertex and updates the number of edges
             reader.seek(0, 0)
@@ -86,7 +89,7 @@ class Graph:
 
     def getInfo(self, file):
         """ 
-        Creates a .txt file with the following information: 
+            Creates a .txt file with the following information: 
             Number of vertices and edges, max and min degree, average degree, median degree
         """
         if ('.txt' not in file):
@@ -98,6 +101,8 @@ class Graph:
             writer.write('Grau minimo: ' + str(min(self._degree)) + '\n' )
             writer.write('Grau médio: ' + "{:.2f}".format(self.getAverageDegree()) + '\n' )
             writer.write('Mediana do grau: ' + "{:.1f}".format(self.getMedianDegree()) + '\n' )
+            self.getConnectedComponents(False)
+            writer.write('Componentes conexas ('+ str(len(self._connected_components)) +'): ' + str(self._connected_components) +'\n')
     
     def bfs(self, s, w=True):
         """ Executes a bfs, starting in the given vertex s. Return a txt file"""
@@ -136,6 +141,8 @@ class Graph:
                 for item in arvore:
                     for text in item:
                         writer.write(text + '\n')
+        else:
+            return queue_removed
         
     def getDistance(self,a,b, w=True):
         self.bfs(a, False)
@@ -156,14 +163,27 @@ class Graph:
                 writer.write(str(diameter))
         else:
             return diameter   
-      
-g = Graph('grafo_1.txt')
-g.getInfo('exit.txt')
-g.bfs(1)
-g.getDistance(1,3)
-g.getDiameter()
+    
+    def getConnectedComponents (self, w=True):
+        while sum(self._connected_marker) != self._vertices:
+            connected = self.bfs(self._connected_marker[self._connected_marker.index(0)]+1, False)
+            for vertex in connected:
+                self._connected_marker[vertex] = 1
+            self._connected_components.append(list(map(lambda x: x + 1,connected)))
+        if (w):
+            with open('connected_components.txt', 'w') as writer:
+                for component in self._connected_components:
+                    str_component = str(component).replace('[', '')
+                    str_component = str_component.replace(']', '')
+                    writer.write(str_component +'\n') 
+        else:
+            return self._connected_components
+            
 
-                
+      
+g = Graph('g.txt')
+g.bfs(1)
+g.getInfo('exit.txt')
                 
 
             
