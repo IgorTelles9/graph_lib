@@ -115,8 +115,8 @@ class Graph:
         marker[s-1] = 1
         self._level[s-1] = 0
         arvore =[]
-
-        arvore.append([f"Vértice {s} - Pai: Não tem, Nível: 0"])
+        arvore.append(["V,P,N"])
+        arvore.append([f"{s},-1,0"])
         while (len(queue) != 0):
             u = queue.pop()
             queue_removed.append(u)
@@ -126,7 +126,7 @@ class Graph:
                     if marker[item-1] == 0:
                         marker[item-1] = 1
                         self._level[item-1] = self._level[u-1] + 1
-                        arvore.append([f"Vértice {item} - Pai: {u}, Nível: {self._level[item-1]}"])
+                        arvore.append([f"{item},{u},{self._level[item-1]}"])
                         queue.push(item)
             else:
                 for index, item in enumerate(self._graph[u-1]):
@@ -134,7 +134,7 @@ class Graph:
                         if marker[index] == 0:
                             marker[index] = 1
                             self._level[index] = self._level[u-1] + 1
-                            arvore.append([f"Vértice {index + 1} - Pai: {u}, Nível: {self._level[index]}"])
+                            arvore.append([f"{index + 1},{u},{self._level[index]}"])
                             queue.push(index + 1)
 
         if (w):
@@ -155,7 +155,7 @@ class Graph:
         level = []
         level = [0 for x in range(len(self._graph))]
         level[s-1] = 0
-        arvore[s-1] = f"Vértice: {s} - Pai: Não tem, Nível: {0}"
+        arvore[s-1] = f"{s},-1,{0}"
         while(len(stack) != 0):
             u = stack.pop()
 
@@ -167,7 +167,7 @@ class Graph:
                         if (marker[item-1]==0):
                             parents[item-1] = u
                             level[item-1] = level[u-1] + 1
-                            arvore[item-1] = f"Vértice: {item} - Pai: {u}, Nível: {level[item-1]}"
+                            arvore[item-1] = f"{item},{u},{level[item-1]}"
             else:
                 if marker[u-1] == 0:
                     marker[u-1] = 1
@@ -177,9 +177,10 @@ class Graph:
                             if (marker[index]==0):
                                 parents[index] = u
                                 level[index] = level[u-1] + 1
-                                arvore[index] = f"Vértice: {index+1} - Pai: {u}, Nível: {level[index]}"
+                                arvore[index] = f"{index+1},{u},{level[index]}"
                                                     
         with open('dfs.txt', 'w')  as writer:
+            writer.write("V,P,N" + '\n')
             for text in arvore:
                 writer.write(text + '\n')
         
