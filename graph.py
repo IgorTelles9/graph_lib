@@ -166,7 +166,8 @@ class Graph:
     
     def getConnectedComponents (self, w=True):
         while sum(self._connected_marker) != self._vertices:
-            connected = self.bfs(self._connected_marker[self._connected_marker.index(0)]+1, False)
+            connected = self.bfs(self._connected_marker.index(0)+1, False)
+            connected = list(map(lambda x: x - 1,connected))
             for vertex in connected:
                 self._connected_marker[vertex] = 1
             self._connected_components.append(list(map(lambda x: x + 1,connected)))
@@ -181,7 +182,7 @@ class Graph:
             
 
       
-g = Graph('g.txt')
+g = Graph('grafo_1.txt')
 g.bfs(1)
 g.getInfo('exit.txt')
                 
