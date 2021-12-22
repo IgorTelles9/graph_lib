@@ -1,4 +1,5 @@
 from queue import Queue
+from stack import Stack 
 from math import ceil 
 class Graph: 
 
@@ -99,7 +100,7 @@ class Graph:
             writer.write('Numero de arestas: ' + str(self._edges) + '\n')
             writer.write('Grau maximo: ' + str(max(self._degree)) + '\n' )
             writer.write('Grau minimo: ' + str(min(self._degree)) + '\n' )
-            writer.write('Grau médio: ' + "{:.2f}".format(self.getAverageDegree()) + '\n' )
+            writer.write('Grau medio: ' + "{:.2f}".format(self.getAverageDegree()) + '\n' )
             writer.write('Mediana do grau: ' + "{:.1f}".format(self.getMedianDegree()) + '\n' )
             self.getConnectedComponents(False)
             writer.write('Componentes conexas ('+ str(len(self._connected_components)) +'): ' + str(self._connected_components) +'\n')
@@ -144,6 +145,44 @@ class Graph:
         else:
             return queue_removed
         
+    def dfs(self, s):
+        ordem = []
+        marker = [0 for x in range(len(self._graph))]
+        stack = Stack()
+        stack.push(s)
+        arvore = [0 for x in range(len(self._graph))]
+        parents = [-1 for x in range(len(self._graph))]
+        level = []
+        level = [0 for x in range(len(self._graph))]
+        level[s-1] = 0
+        arvore[s-1] = f"Vértice: {s} - Pai: Não tem, Nível: {0}"
+        while(len(stack) != 0):
+            u = stack.pop()
+
+            if self._list:
+                if marker[u-1] == 0:
+                    marker[u-1] = 1
+                    for item in reversed(self._graph[u-1]):
+                        stack.push(item)
+                        if (marker[item-1]==0):
+                            parents[item-1] = u
+                            level[item-1] = level[u-1] + 1
+                            arvore[item-1] = f"Vértice: {item} - Pai: {u}, Nível: {level[item-1]}"
+            else:
+                if marker[u-1] == 0:
+                    marker[u-1] = 1
+                    for index, item in reversed(list(enumerate(self._graph[u-1]))):
+                        if item == 1:
+                            stack.push(index+1)
+                            if (marker[index]==0):
+                                parents[index] = u
+                                level[index] = level[u-1] + 1
+                                arvore[index] = f"Vértice: {index+1} - Pai: {u}, Nível: {level[index]}"
+                                                    
+        with open('dfs.txt', 'w')  as writer:
+            for text in arvore:
+                writer.write(text + '\n')
+        
     def getDistance(self,a,b, w=True):
         self.bfs(a, False)
         if (w):
@@ -152,8 +191,12 @@ class Graph:
         else:
             return self._level[b-1]
 
-    def getDiameter(self, w=True):
+    def getDiameter(self, w=True, opt=False):
         diameter = 0
+        if (opt):
+            self.bfs(1, False)
+        
+        
         for vertex_a in range(self._vertices):
             self.bfs(vertex_a-1, False)
             diameter = max(self._level) if (max(self._level) > diameter) else diameter
@@ -182,7 +225,8 @@ class Graph:
             
 
       
-g = Graph('grafo_1.txt')
+g = Graph('g.txt')
+g.getDiameter()
 g.bfs(1)
 g.getInfo('exit.txt')
                 
