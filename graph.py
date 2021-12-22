@@ -194,13 +194,14 @@ class Graph:
     def getDiameter(self, w=True, opt=False):
         diameter = 0
         if (opt):
-            self.bfs(1, False)
-        
-        
-        for vertex_a in range(self._vertices):
-            self.bfs(vertex_a-1, False)
-            diameter = max(self._level) if (max(self._level) > diameter) else diameter
-            
+            components = self.getConnectedComponents(False)
+            for component in components:
+                self.bfs(component[0], False)
+                diameter = max(self._level) if (max(self._level) > diameter) else diameter
+        else: 
+            for vertex_a in range(self._vertices):
+                self.bfs(vertex_a-1, False)
+                diameter = max(self._level) if (max(self._level) > diameter) else diameter  
         if (w):
             with open('diameter.txt', 'w') as writer:
                 writer.write(str(diameter))
@@ -225,8 +226,8 @@ class Graph:
             
 
       
-g = Graph('g.txt')
-g.getDiameter()
+g = Graph('grafo_1.txt')
+g.getDiameter(w=True, opt=True)
 g.bfs(1)
 g.getInfo('exit.txt')
                 
