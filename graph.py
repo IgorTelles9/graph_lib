@@ -1,4 +1,6 @@
 from queue import Queue
+from stack import Stack 
+from math import ceil 
 class Graph: 
 
     def __init__(self, file, list = True) -> None:
@@ -7,6 +9,9 @@ class Graph:
         self._degree = []
         self._graph = []
         self._edges = 0
+        self._level = []
+        self._connected_components = []
+        self._connected_marker = []
 
         with open(file) as reader:
             line  = reader.readline()
@@ -16,6 +21,7 @@ class Graph:
 
             # creates a vector with size = number of vertices and 0 in every position
             self._degree = [0 for x in range(self._vertices)] 
+            self._connected_marker = [0 for x in range(self._vertices)] 
 
              # updates the degree vector with the actual value for each vertex and updates the number of edges
             reader.seek(0, 0)
@@ -70,9 +76,21 @@ class Graph:
                     line = reader.readline()
 
 
+    def getAverageDegree(self):
+        return sum(self._degree)/self._vertices
+
+    def getMedianDegree(self):
+        degree_sorted = sorted(self._degree)
+        if (self._vertices % 2 == 0):
+            x = degree_sorted[ ceil(self._vertices/2) - 1]
+            y = degree_sorted[ ceil(self._vertices/2)]
+            return (x+y)/2
+        return degree_sorted[ ceil(self._vertices/2) - 1]
+
+
     def getInfo(self, file):
         """ 
-        Creates a .txt file with the following information: 
+            Creates a .txt file with the following information: 
             Number of vertices and edges, max and min degree, average degree, median degree
         """
         if ('.txt' not in file):
@@ -82,16 +100,20 @@ class Graph:
             writer.write('Numero de arestas: ' + str(self._edges) + '\n')
             writer.write('Grau maximo: ' + str(max(self._degree)) + '\n' )
             writer.write('Grau minimo: ' + str(min(self._degree)) + '\n' )
+            writer.write('Grau medio: ' + "{:.2f}".format(self.getAverageDegree()) + '\n' )
+            writer.write('Mediana do grau: ' + "{:.1f}".format(self.getMedianDegree()) + '\n' )
+            self.getConnectedComponents(False)
+            writer.write('Componentes conexas ('+ str(len(self._connected_components)) +'): ' + str(self._connected_components) +'\n')
     
-    def bfs(self, s):
+    def bfs(self, s, w=True):
         """ Executes a bfs, starting in the given vertex s. Return a txt file"""
         marker = [0 for x in range(len(self._graph))]
-        level = [-1 for x in range(len(self._graph))]
+        self._level = [-1 for x in range(len(self._graph))]
         queue = Queue() 
         queue_removed = []
         queue.push(s)
         marker[s-1] = 1
-        level[s-1] = 0
+        self._level[s-1] = 0
         arvore =[]
 
         arvore.append([f"Vértice {s} - Pai: Não tem, Nível: 0"])
@@ -103,28 +125,110 @@ class Graph:
                 for item in self._graph[u-1]:
                     if marker[item-1] == 0:
                         marker[item-1] = 1
-                        level[item-1] = level[u-1] + 1
-                        arvore.append([f"Vértice {item} - Pai: {u}, Nível: {level[item-1]}"])
+                        self._level[item-1] = self._level[u-1] + 1
+                        arvore.append([f"Vértice {item} - Pai: {u}, Nível: {self._level[item-1]}"])
                         queue.push(item)
             else:
                 for index, item in enumerate(self._graph[u-1]):
                     if item == 1:
                         if marker[index] == 0:
                             marker[index] = 1
-                            level[index] = level[u-1] + 1
-                            arvore.append([f"Vértice {index + 1} - Pai: {u}, Nível: {level[index]}"])
+                            self._level[index] = self._level[u-1] + 1
+                            arvore.append([f"Vértice {index + 1} - Pai: {u}, Nível: {self._level[index]}"])
                             queue.push(index + 1)
 
-        with open('bfs.txt', 'w')  as writer:
-            for item in arvore:
-                for text in item:
-                    writer.write(text + '\n')
+        if (w):
+            with open('bfs.txt', 'w')  as writer:
+                for item in arvore:
+                    for text in item:
+                        writer.write(text + '\n')
+        else:
+            return queue_removed
         
-g = Graph('grafo_1.txt')
-g.getInfo('exit.txt')
-g.bfs(1)
+    def dfs(self, s):
+        ordem = []
+        marker = [0 for x in range(len(self._graph))]
+        stack = Stack()
+        stack.push(s)
+        arvore = [0 for x in range(len(self._graph))]
+        parents = [-1 for x in range(len(self._graph))]
+        level = []
+        level = [0 for x in range(len(self._graph))]
+        level[s-1] = 0
+        arvore[s-1] = f"Vértice: {s} - Pai: Não tem, Nível: {0}"
+        while(len(stack) != 0):
+            u = stack.pop()
 
-                
+            if self._list:
+                if marker[u-1] == 0:
+                    marker[u-1] = 1
+                    for item in reversed(self._graph[u-1]):
+                        stack.push(item)
+                        if (marker[item-1]==0):
+                            parents[item-1] = u
+                            level[item-1] = level[u-1] + 1
+                            arvore[item-1] = f"Vértice: {item} - Pai: {u}, Nível: {level[item-1]}"
+            else:
+                if marker[u-1] == 0:
+                    marker[u-1] = 1
+                    for index, item in reversed(list(enumerate(self._graph[u-1]))):
+                        if item == 1:
+                            stack.push(index+1)
+                            if (marker[index]==0):
+                                parents[index] = u
+                                level[index] = level[u-1] + 1
+                                arvore[index] = f"Vértice: {index+1} - Pai: {u}, Nível: {level[index]}"
+                                                    
+        with open('dfs.txt', 'w')  as writer:
+            for text in arvore:
+                writer.write(text + '\n')
+        
+    def getDistance(self,a,b, w=True):
+        self.bfs(a, False)
+        if (w):
+            with open('distance_' + str(a) + '_' + str(b) + '.txt', 'w') as writer:
+                writer.write(str(self._level[b-1]))
+        else:
+            return self._level[b-1]
+
+    def getDiameter(self, w=True, opt=False):
+        diameter = 0
+        if (opt):
+            self.bfs(1, False)
+        
+        
+        for vertex_a in range(self._vertices):
+            self.bfs(vertex_a-1, False)
+            diameter = max(self._level) if (max(self._level) > diameter) else diameter
+            
+        if (w):
+            with open('diameter.txt', 'w') as writer:
+                writer.write(str(diameter))
+        else:
+            return diameter   
+    
+    def getConnectedComponents (self, w=True):
+        while sum(self._connected_marker) != self._vertices:
+            connected = self.bfs(self._connected_marker.index(0)+1, False)
+            connected = list(map(lambda x: x - 1,connected))
+            for vertex in connected:
+                self._connected_marker[vertex] = 1
+            self._connected_components.append(list(map(lambda x: x + 1,connected)))
+        if (w):
+            with open('connected_components.txt', 'w') as writer:
+                for component in self._connected_components:
+                    str_component = str(component).replace('[', '')
+                    str_component = str_component.replace(']', '')
+                    writer.write(str_component +'\n') 
+        else:
+            return self._connected_components
+            
+
+      
+g = Graph('g.txt')
+g.getDiameter()
+g.bfs(1)
+g.getInfo('exit.txt')
                 
 
             
