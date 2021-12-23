@@ -1,5 +1,4 @@
 from queue import Queue
-from stack import Stack 
 from math import ceil 
 class Graph: 
 
@@ -102,11 +101,10 @@ class Graph:
             writer.write('Grau minimo: ' + str(min(self._degree)) + '\n' )
             writer.write('Grau medio: ' + "{:.2f}".format(self.getAverageDegree()) + '\n' )
             writer.write('Mediana do grau: ' + "{:.1f}".format(self.getMedianDegree()) + '\n' )
-            self.getConnectedComponents(False)
-            writer.write('Componentes conexas ('+ str(len(self._connected_components)) +'): ' + str(self._connected_components) +'\n')
+            writer.write('Componentes conexas: \n' + self.getConnectedComponents(False))
     
     def bfs(self, s, w=True):
-        """ Executes a bfs, starting in the given vertex s. Return a txt file"""
+        """ Executes a bfs, starting in the given vertex s. """
         marker = [0 for x in range(len(self._graph))]
         self._level = [-1 for x in range(len(self._graph))]
         queue = Queue() 
@@ -216,22 +214,20 @@ class Graph:
             for vertex in connected:
                 self._connected_marker[vertex] = 1
             self._connected_components.append(list(map(lambda x: x + 1,connected)))
+        self._connected_components = sorted(self._connected_components, key = lambda x: len(x), reverse=True)
+
+        result = ''
+        for component in self._connected_components:
+            str_component = str(component).replace('[', '')
+            str_component = str_component.replace(']', '')
+            result +='tamanho: ' + str(len(component)) + '--> '
+            result += str_component +'\n'
+
         if (w):
             with open('connected_components.txt', 'w') as writer:
-                for component in self._connected_components:
-                    str_component = str(component).replace('[', '')
-                    str_component = str_component.replace(']', '')
-                    writer.write(str_component +'\n') 
+                writer.write(result)         
         else:
-            return self._connected_components
-            
-
-      
-g = Graph('grafo_1.txt')
-g.getDiameter(w=True, opt=True)
-g.bfs(1)
-g.getInfo('exit.txt')
-                
+            return result
 
             
             
