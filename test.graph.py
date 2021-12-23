@@ -3,7 +3,7 @@ from graph import Graph
 
 # Criação do grafo 
 start = time.time()
-g = Graph('grafo_2.txt', True)
+g = Graph('grafo_2.txt', False)
 finish = time.time()
 print('time elapsed in : ', finish-start)
 

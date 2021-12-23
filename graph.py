@@ -64,14 +64,14 @@ class Graph:
         else:
             with open(file) as reader:
                 # creates a matrix nxn
-                self._graph = [[0 for x in range(self._vertices)] for x in range(self._vertices)]
+                self._graph = [[False for x in range(self._vertices)] for x in range(self._vertices)]
                 line = reader.readline()
                 line = reader.readline()
                 while line != '':
                     line = line.replace('\n', '')
                     temp = line.split(' ')
-                    self._graph[int(temp[0])-1][int(temp[1])-1] = 1
-                    self._graph[int(temp[1])-1][int(temp[0])-1] = 1
+                    self._graph[int(temp[0])-1][int(temp[1])-1] = True
+                    self._graph[int(temp[1])-1][int(temp[0])-1] = True
                     line = reader.readline()
 
 
