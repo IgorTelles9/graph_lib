@@ -207,7 +207,8 @@ class Graph:
         """
         diameter = 0
         if (opt):
-            components = self.getConnectedComponents(False)
+            self.getConnectedComponents(False)
+            components = self._connected_components
             for component in components:
                 self.bfs(component[0], False)
                 diameter = self._level[-1] if (self._level[-1] > diameter) else diameter
@@ -247,7 +248,8 @@ class Graph:
     def getParent(self, v):
         return(self._parents[v-1])
          
-            
+g = Graph('grafo_1.txt')
+g.getDiameter(opt=True)       
 
                 
 
