@@ -246,10 +246,7 @@ class Graph:
             return result
 
     def getParent(self, v):
-        return(self._parents[v-1])
-         
-g = Graph('grafo_1.txt')
-g.getDiameter(opt=True)       
+        return(self._parents[v-1])  
 
                 
 
