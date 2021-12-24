@@ -14,6 +14,7 @@ class Graph:
         self._level = []
         self._connected_components = []
         self._connected_marker = []
+        self._arvore = []
         
         
 
@@ -120,9 +121,9 @@ class Graph:
         queue.push(s)
         marker[s-1] = 1
         self._level[s-1] = 0
-        arvore = []
-        arvore.append(["V,P,N"])
-        arvore.append([f"{s},-1,0"])
+        
+        self._arvore.append(["V,P,N"])
+        self._arvore.append([f"{s},-1,0"])
         while (len(queue) != 0):
             u = queue.pop()
             queue_removed.append(u)
@@ -132,7 +133,7 @@ class Graph:
                     if marker[item-1] == 0:
                         marker[item-1] = 1
                         self._level[item-1] = self._level[u-1] + 1
-                        arvore.append([f"{item},{u},{self._level[item-1]}"])
+                        self._arvore.append([f"{item},{u},{self._level[item-1]}"])
                         queue.push(item)
                         self._parents[item-1] = u
             else:
@@ -141,13 +142,13 @@ class Graph:
                         if marker[index] == 0:
                             marker[index] = 1
                             self._level[index] = self._level[u-1] + 1
-                            arvore.append([f"{index + 1},{u},{self._level[index]}"])
+                            self._arvore.append([f"{index + 1},{u},{self._level[index]}"])
                             queue.push(index + 1)
                             self._parents[index] = u
 
         if (w):
             with open('bfs.txt', 'w')  as writer:
-                for item in arvore:
+                for item in self._arvore:
                     for text in item:
                         writer.write(text + '\n')
         else:
@@ -216,11 +217,11 @@ class Graph:
                 for i in range( int(log10(len(component))) ):
                     index = randrange(component[0], component[-1])
                     self.bfs(index, False)
-                    diameter = self._level[-1] if (self._level[-1] > diameter) else diameter
+                    diameter = eval(self._arvore[-1][-1][-1]) if (eval(self._arvore[-1][-1][-1]) > diameter) else diameter
         else: 
             for vertex_a in range(self._vertices):
                 self.bfs(vertex_a-1, False)
-                diameter = self._level[-1] if (self._level[-1] > diameter) else diameter  
+                diameter = eval(self._arvore[-1][-1][-1]) if (eval(self._arvore[-1][-1][-1]) > diameter) else diameter  
         if (w):
             with open('diameter.txt', 'w') as writer:
                 writer.write('diametro do grafo: ' + str(diameter))
