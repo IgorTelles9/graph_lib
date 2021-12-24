@@ -1,3 +1,4 @@
+from stack import Stack
 from queue import Queue
 from math import ceil 
 from stack import Stack
@@ -13,6 +14,7 @@ class Graph:
         self._level = []
         self._connected_components = []
         self._connected_marker = []
+        self._arvore = []
 
         with open(file) as reader:
             line  = reader.readline()
@@ -116,9 +118,8 @@ class Graph:
         queue.push(s)
         marker[s-1] = 1
         self._level[s-1] = 0
-        arvore =[]
-        arvore.append(["V,P,N"])
-        arvore.append([f"{s},-1,0"])
+        self._arvore.append(["V,P,N"])
+        self._arvore.append([f"{s},-1,0"])
         while (len(queue) != 0):
             u = queue.pop()
             queue_removed.append(u)
@@ -128,7 +129,7 @@ class Graph:
                     if marker[item-1] == 0:
                         marker[item-1] = 1
                         self._level[item-1] = self._level[u-1] + 1
-                        arvore.append([f"{item},{u},{self._level[item-1]}"])
+                        self._arvore.append([f"{item},{u},{self._level[item-1]}"])
                         queue.push(item)
             else:
                 for index, item in enumerate(self._graph[u-1]):
@@ -136,12 +137,12 @@ class Graph:
                         if marker[index] == 0:
                             marker[index] = 1
                             self._level[index] = self._level[u-1] + 1
-                            arvore.append([f"{index + 1},{u},{self._level[index]}"])
+                            self._arvore.append([f"{index + 1},{u},{self._level[index]}"])
                             queue.push(index + 1)
 
         if (w):
             with open('bfs.txt', 'w')  as writer:
-                for item in arvore:
+                for item in self._arvore:
                     for text in item:
                         writer.write(text + '\n')
         else:
@@ -206,11 +207,11 @@ class Graph:
             components = self.getConnectedComponents(False)
             for component in components:
                 self.bfs(component[0], False)
-                diameter = max(self._level) if (max(self._level) > diameter) else diameter
+                diameter = eval(self._arvore[-1][-1][-1]) if (eval(self._arvore[-1][-1][-1]) > diameter) else diameter
         else: 
             for vertex_a in range(self._vertices):
                 self.bfs(vertex_a-1, False)
-                diameter = max(self._level) if (max(self._level) > diameter) else diameter  
+                diameter = eval(self._arvore[-1][-1][-1]) if (eval(self._arvore[-1][-1][-1]) > diameter) else diameter  
         if (w):
             with open('diameter.txt', 'w') as writer:
                 writer.write('diametro do grafo: ' + str(diameter))
