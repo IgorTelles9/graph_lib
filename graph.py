@@ -1,7 +1,6 @@
 from stack import Stack
 from queue import Queue
 from math import ceil 
-from stack import Stack
 
 class Graph: 
 
@@ -14,7 +13,8 @@ class Graph:
         self._level = []
         self._connected_components = []
         self._connected_marker = []
-        self._arvore = []
+        
+        
 
         with open(file) as reader:
             line  = reader.readline()
@@ -25,6 +25,7 @@ class Graph:
             # creates a vector with size = number of vertices and 0 in every position
             self._degree = [0 for x in range(self._vertices)] 
             self._connected_marker = [0 for x in range(self._vertices)] 
+            self._parents = [0 for x in range(self._vertices)]
 
              # updates the degree vector with the actual value for each vertex and updates the number of edges
             reader.seek(0, 0)
@@ -118,8 +119,9 @@ class Graph:
         queue.push(s)
         marker[s-1] = 1
         self._level[s-1] = 0
-        self._arvore.append(["V,P,N"])
-        self._arvore.append([f"{s},-1,0"])
+        arvore = []
+        arvore.append(["V,P,N"])
+        arvore.append([f"{s},-1,0"])
         while (len(queue) != 0):
             u = queue.pop()
             queue_removed.append(u)
@@ -129,20 +131,22 @@ class Graph:
                     if marker[item-1] == 0:
                         marker[item-1] = 1
                         self._level[item-1] = self._level[u-1] + 1
-                        self._arvore.append([f"{item},{u},{self._level[item-1]}"])
+                        arvore.append([f"{item},{u},{self._level[item-1]}"])
                         queue.push(item)
+                        self._parents[item-1] = u
             else:
                 for index, item in enumerate(self._graph[u-1]):
                     if item == 1:
                         if marker[index] == 0:
                             marker[index] = 1
                             self._level[index] = self._level[u-1] + 1
-                            self._arvore.append([f"{index + 1},{u},{self._level[index]}"])
+                            arvore.append([f"{index + 1},{u},{self._level[index]}"])
                             queue.push(index + 1)
+                            self._parents[index] = u
 
         if (w):
             with open('bfs.txt', 'w')  as writer:
-                for item in self._arvore:
+                for item in arvore:
                     for text in item:
                         writer.write(text + '\n')
         else:
@@ -155,7 +159,6 @@ class Graph:
         stack = Stack()
         stack.push(s)
         arvore = [0 for x in range(len(self._graph))]
-        parents = [-1 for x in range(len(self._graph))]
         level = []
         level = [0 for x in range(len(self._graph))]
         level[s-1] = 0
@@ -169,7 +172,7 @@ class Graph:
                     for item in reversed(self._graph[u-1]):
                         stack.push(item)
                         if (marker[item-1]==0):
-                            parents[item-1] = u
+                            self._parents[item-1] = u
                             level[item-1] = level[u-1] + 1
                             arvore[item-1] = f"{item},{u},{level[item-1]}"
             else:
@@ -179,7 +182,7 @@ class Graph:
                         if item == 1:
                             stack.push(index+1)
                             if (marker[index]==0):
-                                parents[index] = u
+                                self._parents[index] = u
                                 level[index] = level[u-1] + 1
                                 arvore[index] = f"{index+1},{u},{level[index]}"
         if (w):                                    
@@ -207,11 +210,11 @@ class Graph:
             components = self.getConnectedComponents(False)
             for component in components:
                 self.bfs(component[0], False)
-                diameter = eval(self._arvore[-1][-1][-1]) if (eval(self._arvore[-1][-1][-1]) > diameter) else diameter
+                diameter = self._level[-1] if (self._level[-1] > diameter) else diameter
         else: 
             for vertex_a in range(self._vertices):
                 self.bfs(vertex_a-1, False)
-                diameter = eval(self._arvore[-1][-1][-1]) if (eval(self._arvore[-1][-1][-1]) > diameter) else diameter  
+                diameter = self._level[-1] if (self._level[-1] > diameter) else diameter  
         if (w):
             with open('diameter.txt', 'w') as writer:
                 writer.write('diametro do grafo: ' + str(diameter))
@@ -241,7 +244,9 @@ class Graph:
         else:
             return result
 
-            
+    def getParent(self, v):
+        return(self._parents[v-1])
+         
             
 
                 
