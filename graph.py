@@ -1,6 +1,6 @@
 from stack import Stack
 from queue import Queue
-from math import ceil, log10
+from math import ceil, log2
 from random import randrange
 
 class Graph: 
@@ -210,14 +210,10 @@ class Graph:
         diameter = 0
         if (opt):
             """ Approximative run. Note it may not work for small graphs. """
-            self.getConnectedComponents(False)
-            components = self._connected_components
-            for component in components:
-                component.sort()
-                for i in range( int(log10(len(component))) ):
-                    index = randrange(component[0], component[-1])
-                    self.bfs(index, False)
-                    diameter = eval(self._arvore[-1][-1][-1]) if (eval(self._arvore[-1][-1][-1]) > diameter) else diameter
+            for i in range( int(log2(self._vertices)) ):
+                index = randrange(1, self._vertices)
+                self.bfs(index, False)
+                diameter = eval(self._arvore[-1][-1][-1]) if (eval(self._arvore[-1][-1][-1]) > diameter) else diameter
         else: 
             for vertex_a in range(self._vertices):
                 self.bfs(vertex_a-1, False)
