@@ -1,5 +1,7 @@
 from queue import Queue
 from math import ceil 
+from stack import Stack
+
 class Graph: 
 
     def __init__(self, file, list = True) -> None:
@@ -76,9 +78,11 @@ class Graph:
 
 
     def getAverageDegree(self):
+        """ Returns the average degree. """
         return sum(self._degree)/self._vertices
 
     def getMedianDegree(self):
+        """ Returns the median degree. """
         degree_sorted = sorted(self._degree)
         if (self._vertices % 2 == 0):
             x = degree_sorted[ ceil(self._vertices/2) - 1]
@@ -143,7 +147,8 @@ class Graph:
         else:
             return queue_removed
         
-    def dfs(self, s):
+    def dfs(self, s, w=True):
+        """ Executes a bfs, starting in the given vertex s. """
         ordem = []
         marker = [0 for x in range(len(self._graph))]
         stack = Stack()
@@ -176,21 +181,26 @@ class Graph:
                                 parents[index] = u
                                 level[index] = level[u-1] + 1
                                 arvore[index] = f"{index+1},{u},{level[index]}"
-                                                    
-        with open('dfs.txt', 'w')  as writer:
-            writer.write("V,P,N" + '\n')
-            for text in arvore:
-                writer.write(text + '\n')
+        if (w):                                    
+            with open('dfs.txt', 'w')  as writer:
+                writer.write("V,P,N" + '\n')
+                for text in arvore:
+                    writer.write(text + '\n')
         
     def getDistance(self,a,b, w=True):
+        """ Returns the  shortest path between vertex a and b. """
         self.bfs(a, False)
         if (w):
             with open('distance_' + str(a) + '_' + str(b) + '.txt', 'w') as writer:
-                writer.write(str(self._level[b-1]))
+                writer.write('distancia entre ' + str(a) + '-' + str(b) + ':' + str(self._level[b-1]))
         else:
             return self._level[b-1]
 
     def getDiameter(self, w=True, opt=False):
+        """ 
+        Returns the diameter of the graph. 
+        The parameter 'opt' controls if the full algorithm will run or only an approximation
+        """
         diameter = 0
         if (opt):
             components = self.getConnectedComponents(False)
@@ -203,11 +213,12 @@ class Graph:
                 diameter = max(self._level) if (max(self._level) > diameter) else diameter  
         if (w):
             with open('diameter.txt', 'w') as writer:
-                writer.write(str(diameter))
+                writer.write('diametro do grafo: ' + str(diameter))
         else:
             return diameter   
     
     def getConnectedComponents (self, w=True):
+        """ Returns a list of lists of all connected components. """
         while sum(self._connected_marker) != self._vertices:
             connected = self.bfs(self._connected_marker.index(0)+1, False)
             connected = list(map(lambda x: x - 1,connected))
