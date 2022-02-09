@@ -4,7 +4,8 @@ from graph import Graph
 
 # Item 1
 # start = time.time()
-g = Graph('grafo_3.txt')
+g = Graph('test1.txt', False)
+print(g)
 # print('memory use in mb: ', psutil.Process().memory_info().rss / (1024 * 1024))
 # finish = time.time()
 # print('time elapsed in : ', finish-start)

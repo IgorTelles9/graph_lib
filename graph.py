@@ -45,9 +45,9 @@ class Graph:
 
         if (self._list):
             with open(file) as reader:
+                # creates an array with size = number of vertices
                 self._graph = [0 for x in range(self._vertices)]
-                
-                # creates a vector with size = number of vertices and an array with size = vertex degree in each position
+                # populates each position with an array with this vertex's degree as size
                 for i in range(self._vertices):
                     self._graph[i] = [None for x in range(self._degree[i])]
                 
@@ -62,7 +62,7 @@ class Graph:
                         vertex = int(temp[w])
                         edge = int(temp[1 if w == 0 else 0])
                         index = self._graph[vertex-1].index(None)
-                        self._graph[vertex-1][index] = edge
+                        self._graph[vertex-1][index] = [edge,float(temp[2])]
                         line = reader.readline()
                 
                 # sorts each edge vector
@@ -77,10 +77,9 @@ class Graph:
                 while line != '':
                     line = line.replace('\n', '')
                     temp = line.split(' ')
-                    self._graph[int(temp[0])-1][int(temp[1])-1] = True
-                    self._graph[int(temp[1])-1][int(temp[0])-1] = True
+                    self._graph[int(temp[0])-1][int(temp[1])-1] = float(temp[2])
+                    self._graph[int(temp[1])-1][int(temp[0])-1] = float(temp[2])
                     line = reader.readline()
-
 
     def getAverageDegree(self):
         """ Returns the average degree. """
@@ -94,7 +93,6 @@ class Graph:
             y = degree_sorted[ ceil(self._vertices/2)]
             return (x+y)/2
         return degree_sorted[ ceil(self._vertices/2) - 1]
-
 
     def getInfo(self, file):
         """ 
