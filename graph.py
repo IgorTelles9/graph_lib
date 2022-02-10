@@ -1,5 +1,6 @@
 from stack import Stack
 from queue import Queue
+from min_heap import MinHeap
 from math import ceil, log2
 from random import randrange
 
@@ -15,8 +16,19 @@ class Graph:
         self._connected_components = []
         self._connected_marker = []
         self._arvore = []
+
+        # Flags 
+        self._weighted = False
+        self._negative_weighted = False
         
-        
+        # auxiliar function to set the flags
+        def checkFlags(temp):
+            if (self._weighted == False):
+                if (temp[2]!= 0):
+                    self._weighted = True
+            if (self._negative_weighted == False):
+                if (temp[2] < 0):
+                    self._negative_weighted = True   
 
         with open(file) as reader:
             line  = reader.readline()
@@ -59,6 +71,7 @@ class Graph:
                     while line != '':
                         line = line.replace('\n', '')
                         temp = line.split(' ')
+                        checkFlags(temp)
                         vertex = int(temp[w])
                         edge = int(temp[1 if w == 0 else 0])
                         index = self._graph[vertex-1].index(None)
@@ -77,6 +90,7 @@ class Graph:
                 while line != '':
                     line = line.replace('\n', '')
                     temp = line.split(' ')
+                    checkFlags(temp)
                     self._graph[int(temp[0])-1][int(temp[1])-1] = float(temp[2])
                     self._graph[int(temp[1])-1][int(temp[0])-1] = float(temp[2])
                     line = reader.readline()
@@ -190,13 +204,26 @@ class Graph:
                 writer.write("V,P,N" + '\n')
                 for text in arvore:
                     writer.write(text + '\n')
-        
+    
+    def dijkstra(self, s, w=True):
+        pass
+
     def getDistance(self,a,b, w=True):
         """ Returns the  shortest path between vertex a and b. """
-        self.bfs(a, False)
+        filename = 'distance_' + str(a) + '_' + str(b) + '.txt',
+        if (self._weighted == True):
+            if (self._negative_weighted == True):
+                pass
+                # Floyd-Warshal ou Bellman-Ford
+            else:
+                pass
+                # Dijkstra
+        else: 
+            self.bfs(a, False)
+            result = str(self._level[b-1])
         if (w):
-            with open('distance_' + str(a) + '_' + str(b) + '.txt', 'w') as writer:
-                writer.write('distancia entre ' + str(a) + '-' + str(b) + ':' + str(self._level[b-1]))
+            with open(filename, 'w') as writer:
+                writer.write('distancia entre ' + str(a) + '-' + str(b) + ':' + result)
         else:
             return self._level[b-1]
 
