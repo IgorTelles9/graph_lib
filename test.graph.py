@@ -1,11 +1,12 @@
 import time
 from graph import Graph
+from min_heap import MinHeap
 #import psutil
 
 # Item 1
 # start = time.time()
-g = Graph('test1.txt', False)
-print(g)
+g = Graph('test1.txt')
+g.dijkstra(1)
 # print('memory use in mb: ', psutil.Process().memory_info().rss / (1024 * 1024))
 # finish = time.time()
 # print('time elapsed in : ', finish-start)
@@ -58,4 +59,4 @@ print(g)
 # g.getConnectedComponents()
 
 # Item 7
-g.getDiameter(opt=True)
+#g.getDiameter(opt=True)

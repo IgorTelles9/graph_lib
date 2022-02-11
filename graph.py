@@ -1,6 +1,6 @@
 from stack import Stack
 from queue import Queue
-from min_heap import MinHeap
+from p_queue import PQueue
 from math import ceil, log2
 from random import randrange
 
@@ -24,10 +24,10 @@ class Graph:
         # auxiliar function to set the flags
         def checkFlags(temp):
             if (self._weighted == False):
-                if (temp[2]!= 0):
+                if (float(temp[2])!= 0):
                     self._weighted = True
             if (self._negative_weighted == False):
-                if (temp[2] < 0):
+                if (float(temp[2]) < 0):
                     self._negative_weighted = True   
 
         with open(file) as reader:
@@ -75,12 +75,14 @@ class Graph:
                         vertex = int(temp[w])
                         edge = int(temp[1 if w == 0 else 0])
                         index = self._graph[vertex-1].index(None)
-                        self._graph[vertex-1][index] = [edge,float(temp[2])]
+                        self._graph[vertex-1][index] = [None for x in range(2)]
+                        self._graph[vertex-1][index][0] = edge 
+                        self._graph[vertex-1][index][1] = float(temp[2])
                         line = reader.readline()
-                
+
                 # sorts each edge vector
                 for vertex in self._graph:
-                    vertex.sort()
+                    vertex.sort() # needs to be changed
         else:
             with open(file) as reader:
                 # creates a matrix nxn
@@ -205,8 +207,36 @@ class Graph:
                 for text in arvore:
                     writer.write(text + '\n')
     
-    def dijkstra(self, s, w=True):
-        pass
+    def dijkstra(self, s, write=True):
+        """ executes dijkstra algorithm and returns a txt file with distances and path"""
+        filename = 'dijkstra'+str(s)+'.txt'
+
+        dist = PQueue(self._vertices)
+        path = [] 
+        dist_arr = [float('inf') for x in range(self._vertices)]
+
+        dist.update(s-1,0)
+        dist_arr[s-1] = 0
+        
+        while (dist.getSize() > 0):
+            u = dist.pop()
+            path.append(u+1)
+
+            # list
+            for edge in self._graph[u]:
+                v = edge[0]
+                p = edge[1]
+                if (dist_arr[v-1] > dist_arr[u] + p):
+                    dist_arr[v-1] = dist_arr[u] + p
+                    dist.update(v-1, dist_arr[v-1])
+        
+        if(write):
+            with open(filename, 'w') as writer:
+                writer.write('dijkstra partindo do vértice' + str(s) + ':\n')
+                writer.write('distancias: ' + str(dist_arr)+ '\n')
+                writer.write('caminho: ' + str(path)+ '\n')
+
+
 
     def getDistance(self,a,b, w=True):
         """ Returns the  shortest path between vertex a and b. """
