@@ -6,7 +6,7 @@ from random import randrange
 
 class Graph: 
 
-    def __init__(self, file, list = True) -> None:
+    def __init__(self, file, list = True, weighted = True) -> None:
         self._list = list
         self._vertices = 0
         self._degree = []
@@ -18,15 +18,12 @@ class Graph:
         self._arvore = []
 
         # Flags 
-        self._weighted = False
+        self._weighted = weighted
         self._negative_weighted = False
         
         # auxiliar function to set the flags
         def checkFlags(temp):
-            if (self._weighted == False):
-                if (float(temp[2])!= 0):
-                    self._weighted = True
-            if (self._negative_weighted == False):
+            if (self._weighted and self._negative_weighted == False):
                 if (float(temp[2]) < 0):
                     self._negative_weighted = True   
 
@@ -77,12 +74,12 @@ class Graph:
                         index = self._graph[vertex-1].index(None)
                         self._graph[vertex-1][index] = [None for x in range(2)]
                         self._graph[vertex-1][index][0] = edge 
-                        self._graph[vertex-1][index][1] = float(temp[2])
+                        self._graph[vertex-1][index][1] = float(temp[2]) if self._weighted else 0
                         line = reader.readline()
 
                 # sorts each edge vector
                 for vertex in self._graph:
-                    vertex.sort() # needs to be changed
+                    vertex.sort() 
         else:
             with open(file) as reader:
                 # creates a matrix nxn
@@ -93,8 +90,8 @@ class Graph:
                     line = line.replace('\n', '')
                     temp = line.split(' ')
                     checkFlags(temp)
-                    self._graph[int(temp[0])-1][int(temp[1])-1] = float(temp[2])
-                    self._graph[int(temp[1])-1][int(temp[0])-1] = float(temp[2])
+                    self._graph[int(temp[0])-1][int(temp[1])-1] = float(temp[2]) if self._weighted else True
+                    self._graph[int(temp[1])-1][int(temp[0])-1] = float(temp[2]) if self._weighted else True
                     line = reader.readline()
 
     def getAverageDegree(self):
@@ -144,6 +141,7 @@ class Graph:
 
             if self._list:
                 for item in self._graph[u-1]:
+                    item = item[0]
                     if marker[item-1] == 0:
                         marker[item-1] = 1
                         self._level[item-1] = self._level[u-1] + 1
@@ -152,14 +150,13 @@ class Graph:
                         self._parents[item-1] = u
             else:
                 for index, item in enumerate(self._graph[u-1]):
-                    if item == 1:
+                    if (item):
                         if marker[index] == 0:
                             marker[index] = 1
                             self._level[index] = self._level[u-1] + 1
                             self._arvore.append([f"{index + 1},{u},{self._level[index]}"])
                             queue.push(index + 1)
                             self._parents[index] = u
-
         if (w):
             with open('bfs.txt', 'w')  as writer:
                 for item in self._arvore:
@@ -170,12 +167,10 @@ class Graph:
         
     def dfs(self, s, w=True):
         """ Executes a bfs, starting in the given vertex s. """
-        ordem = []
         marker = [0 for x in range(len(self._graph))]
         stack = Stack()
         stack.push(s)
         arvore = [0 for x in range(len(self._graph))]
-        level = []
         level = [0 for x in range(len(self._graph))]
         level[s-1] = 0
         arvore[s-1] = f"{s},-1,{0}"
@@ -186,6 +181,7 @@ class Graph:
                 if marker[u-1] == 0:
                     marker[u-1] = 1
                     for item in reversed(self._graph[u-1]):
+                        item = item[0]
                         stack.push(item)
                         if (marker[item-1]==0):
                             self._parents[item-1] = u
@@ -195,7 +191,7 @@ class Graph:
                 if marker[u-1] == 0:
                     marker[u-1] = 1
                     for index, item in reversed(list(enumerate(self._graph[u-1]))):
-                        if item == 1:
+                        if (item):
                             stack.push(index+1)
                             if (marker[index]==0):
                                 self._parents[index] = u
@@ -209,7 +205,6 @@ class Graph:
     
     def dijkstra(self, s, write=True):
         """ executes dijkstra algorithm and returns a txt file with distances and path"""
-        filename = 'dijkstra'+str(s)+'.txt'
 
         dist = PQueue(self._vertices)
         path = [] 
@@ -223,21 +218,28 @@ class Graph:
             path.append(u+1)
 
             # list
-            for edge in self._graph[u]:
-                v = edge[0]
-                p = edge[1]
-                if (dist_arr[v-1] > dist_arr[u] + p):
-                    dist_arr[v-1] = dist_arr[u] + p
-                    dist.update(v-1, dist_arr[v-1])
-        
+            if (self._list):
+                for edge in self._graph[u]:
+                    v = edge[0]
+                    p = edge[1]
+                    if (dist_arr[v-1] > dist_arr[u] + p):
+                        dist_arr[v-1] = dist_arr[u] + p
+                        dist.update(v-1, dist_arr[v-1])
+            else:
+                for i, p in enumerate(self._graph[u]):
+                    if (type(p) != bool):
+                        if(dist_arr[i] > dist_arr[u] + p):
+                            dist_arr[i] = dist_arr[u] + p
+                            dist.update(i, dist_arr[i])
+
         if(write):
-            with open(filename, 'w') as writer:
+            with open('dijkstra.txt', 'w') as writer:
                 writer.write('dijkstra partindo do vértice' + str(s) + ':\n')
                 writer.write('distancias: ' + str(dist_arr)+ '\n')
                 writer.write('caminho: ' + str(path)+ '\n')
-
-
-
+        else:
+            return path
+            
     def getDistance(self,a,b, w=True):
         """ Returns the  shortest path between vertex a and b. """
         filename = 'distance_' + str(a) + '_' + str(b) + '.txt',
@@ -282,7 +284,10 @@ class Graph:
     def getConnectedComponents (self, w=True):
         """ Returns a list of lists of all connected components. """
         while sum(self._connected_marker) != self._vertices:
-            connected = self.bfs(self._connected_marker.index(0)+1, False)
+            if (self._weighted):
+                connected = self.dijkstra(self._connected_marker.index(0)+1, False)
+            else:
+                connected = self.bfs(self._connected_marker.index(0)+1, False)
             connected = list(map(lambda x: x - 1,connected))
             for vertex in connected:
                 self._connected_marker[vertex] = 1

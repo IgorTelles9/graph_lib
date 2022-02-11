@@ -7,6 +7,9 @@ class Queue:
         self.last = None
         self._size = 0
 
+    def peek(self):
+        return (self.first, self.last)
+        
     def push(self, data):
         """ Pushes data into the end of the queue. """
         node = Node(data)
