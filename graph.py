@@ -94,6 +94,14 @@ class Graph:
                     self._graph[int(temp[1])-1][int(temp[0])-1] = float(temp[2]) if self._weighted else True
                     line = reader.readline()
 
+    def toMatrix(self):
+        m = [[False for x in range(self._vertices)] for x in range(self._vertices)]
+        for index, edges in enumerate(self._graph):
+            for edge in edges:
+                #print(index, edge[0], edge[1])
+                m[index][edge[0] - 1] = edge[1]
+        return m
+
     def getAverageDegree(self):
         """ Returns the average degree. """
         return sum(self._degree)/self._vertices
@@ -238,18 +246,28 @@ class Graph:
                 writer.write('distancias: ' + str(dist_arr)+ '\n')
                 writer.write('caminho: ' + str(path)+ '\n')
         else:
-            return path
-            
+            return [path,dist_arr]
+
+    def floyd_warshall(self, s):
+        if (self._list):
+            m = self.toMatrix()
+        else:
+            m = list(self._graph)
+        m[s][s] = 0
+        p
+
+
     def getDistance(self,a,b, w=True):
         """ Returns the  shortest path between vertex a and b. """
-        filename = 'distance_' + str(a) + '_' + str(b) + '.txt',
+        filename = 'distance_' + str(a) + '_' + str(b) + '.txt'
         if (self._weighted == True):
             if (self._negative_weighted == True):
                 pass
                 # Floyd-Warshal ou Bellman-Ford
             else:
-                pass
-                # Dijkstra
+                result = self.dijkstra(a, write=False)
+                result = str(result[1][b-1])
+                print(result)
         else: 
             self.bfs(a, False)
             result = str(self._level[b-1])
@@ -257,7 +275,7 @@ class Graph:
             with open(filename, 'w') as writer:
                 writer.write('distancia entre ' + str(a) + '-' + str(b) + ':' + result)
         else:
-            return self._level[b-1]
+            return result
 
     def getDiameter(self, w=True, opt=False):
         """ 
