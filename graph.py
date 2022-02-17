@@ -98,7 +98,6 @@ class Graph:
         m = [[False for x in range(self._vertices)] for x in range(self._vertices)]
         for index, edges in enumerate(self._graph):
             for edge in edges:
-                #print(index, edge[0], edge[1])
                 m[index][edge[0] - 1] = edge[1]
         return m
 
@@ -131,7 +130,7 @@ class Graph:
             writer.write('Mediana do grau: ' + "{:.1f}".format(self.getMedianDegree()) + '\n' )
             writer.write('Componentes conexas: \n' + self.getConnectedComponents(False))
     
-    def bfs(self, s, w=True):
+    def bfs(self, s, w=True, p=False, b=0):
         """ Executes a bfs, starting in the given vertex s. """
         marker = [0 for x in range(len(self._graph))]
         self._level = [-1 for x in range(len(self._graph))]
@@ -146,6 +145,9 @@ class Graph:
         while (len(queue) != 0):
             u = queue.pop()
             queue_removed.append(u)
+
+            if (p and u == b):
+                return queue_removed
 
             if self._list:
                 for item in self._graph[u-1]:
@@ -211,12 +213,13 @@ class Graph:
                 for text in arvore:
                     writer.write(text + '\n')
     
-    def dijkstra(self, s, write=True):
+    def dijkstra(self, s, write=True, p=False, b=0):
         """ executes dijkstra algorithm and returns a txt file with distances and path"""
 
         dist = PQueue(self._vertices)
         path = [] 
         dist_arr = [float('inf') for x in range(self._vertices)]
+        explored = [False for x in range(self._vertices)]
 
         dist.update(s-1,0)
         dist_arr[s-1] = 0
@@ -224,15 +227,19 @@ class Graph:
         while (dist.getSize() > 0):
             u = dist.pop()
             path.append(u+1)
+            explored[u] = True
+            if (p and u+1 == b):
+                return [path,dist_arr]
 
             # list
             if (self._list):
                 for edge in self._graph[u]:
-                    v = edge[0]
+                    v = edge[0]-1
                     p = edge[1]
-                    if (dist_arr[v-1] > dist_arr[u] + p):
-                        dist_arr[v-1] = dist_arr[u] + p
-                        dist.update(v-1, dist_arr[v-1])
+                    if (not(explored[v]) ):
+                        if (dist_arr[v] > dist_arr[u] + p):
+                            dist_arr[v] = dist_arr[u] + p
+                            dist.update(v, dist_arr[v])
             else:
                 for i, p in enumerate(self._graph[u]):
                     if (type(p) != bool):
@@ -248,15 +255,6 @@ class Graph:
         else:
             return [path,dist_arr]
 
-    def floyd_warshall(self, s):
-        if (self._list):
-            m = self.toMatrix()
-        else:
-            m = list(self._graph)
-        m[s][s] = 0
-        p
-
-
     def getDistance(self,a,b, w=True):
         """ Returns the  shortest path between vertex a and b. """
         filename = 'distance_' + str(a) + '_' + str(b) + '.txt'
@@ -267,7 +265,6 @@ class Graph:
             else:
                 result = self.dijkstra(a, write=False)
                 result = str(result[1][b-1])
-                print(result)
         else: 
             self.bfs(a, False)
             result = str(self._level[b-1])
@@ -276,6 +273,26 @@ class Graph:
                 writer.write('distancia entre ' + str(a) + '-' + str(b) + ':' + result)
         else:
             return result
+
+    def getPath(self, a, b, w=True):
+        filename = 'path' + str(a) + '_' + str(b) + '.txt'
+        if (self._weighted == True):
+            if (self._negative_weighted == True):
+                pass
+                # Floyd-Warshal ou Bellman-Ford
+            else:
+                result = self.dijkstra(a, False, True, b)
+                result = str(result[0])
+        else: 
+            self.bfs(a, False, True, b)
+            result = str(self._level[b-1])
+        if (w):
+            with open(filename, 'w') as writer:
+                writer.write('caminho entre ' + str(a) + '-' + str(b) + ':' + result)
+        else:
+            return result
+
+
 
     def getDiameter(self, w=True, opt=False):
         """ 

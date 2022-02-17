@@ -3,12 +3,15 @@ from graph import Graph
 #import psutil
 
 # Item 1
-# start = time.time()
-g = Graph('test_dijkstra.txt', list=True, weighted=True)
-g.toMatrix()
+start = time.time()
+g = Graph('grafo_W_4_1.txt', list=True, weighted=True)
+#g.dijkstra(1)
+for i in range(10,51,10):
+    print('dist entre 1 e ' + str(i) + ':' + str(g.getDistance(1,i, False)))
+    #print('caminho entre 1 e ' + str(i) + ':' + str(g.getPath(1,i, False)))
 # print('memory use in mb: ', psutil.Process().memory_info().rss / (1024 * 1024))
-# finish = time.time()
-# print('time elapsed in : ', finish-start)
+finish = time.time() 
+print('time elapsed in : ', finish-start)
 
 ###########################################################################################
 
