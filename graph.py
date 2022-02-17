@@ -345,4 +345,80 @@ class Graph:
     def getParent(self, v):
         return(self._parents[v-1])  
 
+    def floyd_warshall(self):
+        if (self._list):
+            d = self.toMatrix()
+        else:
+            d = copy(self._graph)
+        for v in range(self._vertices):
+            for e in range(self._vertices):
+                
+                if d[v][e] == False and v != e:
+                    d[v][e] = math.inf
         
+        for k in range(self._vertices):
+            for i in range(self._vertices):
+               for j in range(self._vertices):
+                   
+                   if d[i][j] > d[i][k] + d[k][j]:
+                       d[i][j] = d[i][k] + d[k][j]
+        return(d)
+
+    def isAdjacent(self, u, v):
+        if self._list:
+            for e in self._graph[u]:
+                if e[0]-1 == v:
+                    return (True, e[1])
+            return (False, -1)
+        else:
+            if self._graph[u][v]:
+                return (True, self._graph[u][v])
+            else:
+                return (False, -1)
+
+    def minKey(self, key, mstSet):
+ 
+        # Initialize min value
+        min = math.inf
+ 
+        for v in range(self._vertices):
+            if key[v] < min and mstSet[v] == False:
+                min = key[v]
+                min_index = v
+ 
+        return min_index
+    
+    def primMST(self):
+        mstSet = [False] * self._vertices
+        key = [math.inf] * self._vertices
+        key[0] = 0
+        parent = [None] * self._vertices
+        parent[0] = -1
+        weightArr = [0] * self._vertices
+        weight = 0
+
+        for cout in range(self._vertices):
+            
+            u = self.minKey(key,mstSet)
+
+            mstSet[u] = True
+
+
+            for v in range(self._vertices):
+                if v==u:
+                    continue
+                tupla = self.isAdjacent(u,v)
+                if tupla[0] and mstSet[v] == False and key[v] > tupla[1]:
+                    key[v] = tupla[1]
+                    parent[v] = u
+                    weightArr[v] = tupla[1]
+
+        for w in weightArr:
+            weight += w
+
+        with open('mst.txt', 'w')  as writer:
+                writer.write("Peso:" + str(weight) + '\n')
+                writer.write("u,v" + '\n')
+                for u, v in enumerate(parent):
+                    if v != -1:
+                        writer.write(str(u+1) + "-" +str(v+1) + '\n')
