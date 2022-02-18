@@ -58,18 +58,33 @@ class PQueue():
                 index = parent_index
                 (left_index, right_index) = self.getChildren(index)
                 parent_index = self.getParent(index)
-
-            elif(left_index != None and self._heap[left_index][1] < self._heap[index][1]):
-
-                (self._heap[left_index], self._heap[index]) = (self._heap[index], self._heap[left_index])
-                (self._indices[left_index], self._indices[index]) = (self._indices[index], self._indices[left_index])
-                index = left_index
+            
+            elif (
+            left_index != None and self._heap[left_index][1] < self._heap[index][1]
+            and right_index != None and self._heap[right_index][1] < self._heap[index][1]
+            ):
+                pass
+                min_index = left_index
+                if (self._heap[left_index][1] > self._heap[right_index][1]):
+                    min_index = right_index
+                (self._heap[min_index], self._heap[index]) = (self._heap[index], self._heap[min_index])
+                (self._indices[min_index], self._indices[index]) = (self._indices[index], self._indices[min_index])
+                index = min_index
                 (left_index, right_index) = self.getChildren(index)
                 parent_index = self.getParent(index)
 
             else:
-                (self._heap[right_index], self._heap[index]) = (self._heap[index], self._heap[right_index])
-                (self._indices[right_index], self._indices[index]) = (self._indices[index], self._indices[right_index])
-                index = right_index
-                (left_index, right_index) = self.getChildren(index)
-                parent_index = self.getParent(index)
+                if(left_index != None and self._heap[left_index][1] < self._heap[index][1]):
+
+                    (self._heap[left_index], self._heap[index]) = (self._heap[index], self._heap[left_index])
+                    (self._indices[left_index], self._indices[index]) = (self._indices[index], self._indices[left_index])
+                    index = left_index
+                    (left_index, right_index) = self.getChildren(index)
+                    parent_index = self.getParent(index)
+
+                else:
+                    (self._heap[right_index], self._heap[index]) = (self._heap[index], self._heap[right_index])
+                    (self._indices[right_index], self._indices[index]) = (self._indices[index], self._indices[right_index])
+                    index = right_index
+                    (left_index, right_index) = self.getChildren(index)
+                    parent_index = self.getParent(index)

@@ -4,7 +4,7 @@ from graph import Graph
 
 # Item 1
 start = time.time()
-g = Graph('grafo_W_4_1.txt', list=True, weighted=True)
+g = Graph('grafo_W_5_1.txt', list=True, weighted=True)
 #g.dijkstra(1)
 for i in range(10,51,10):
     print('dist entre 1 e ' + str(i) + ':' + str(g.getDistance(1,i, False)))
