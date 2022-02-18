@@ -6,7 +6,7 @@ from random import randrange
 
 class Graph: 
 
-    def __init__(self, file, list = True, weighted = True) -> None:
+    def __init__(self, file, list = True, weighted = True, directed=False) -> None:
         self._list = list
         self._vertices = 0
         self._degree = []
@@ -16,6 +16,10 @@ class Graph:
         self._connected_components = []
         self._connected_marker = []
         self._arvore = []
+
+        # If the graph is directed we will work with matrix only
+        if (directed):
+            self._list = False
 
         # Flags 
         self._weighted = weighted
@@ -91,7 +95,8 @@ class Graph:
                     temp = line.split(' ')
                     checkFlags(temp)
                     self._graph[int(temp[0])-1][int(temp[1])-1] = float(temp[2]) if self._weighted else True
-                    self._graph[int(temp[1])-1][int(temp[0])-1] = float(temp[2]) if self._weighted else True
+                    if (not(directed)):
+                        self._graph[int(temp[1])-1][int(temp[0])-1] = float(temp[2]) if self._weighted else True
                     line = reader.readline()
 
     def toMatrix(self):
