@@ -364,18 +364,6 @@ class Graph:
                        d[i][j] = d[i][k] + d[k][j]
         return(d)
 
-    def isAdjacent(self, u, v):
-        if self._list:
-            for e in self._graph[u]:
-                if e[0]-1 == v:
-                    return (True, e[1])
-            return (False, -1)
-        else:
-            if self._graph[u][v]:
-                return (True, self._graph[u][v])
-            else:
-                return (False, -1)
-
     def minKey(self, key, mstSet):
  
         # Initialize min value
@@ -388,35 +376,32 @@ class Graph:
  
         return min_index
     
-    def primMST(self):
+def primMST(self, graphN):
+        min = PQueue(self._vertices)
         mstSet = [False] * self._vertices
         key = [math.inf] * self._vertices
         key[0] = 0
+        min.update(0,0)
         parent = [None] * self._vertices
         parent[0] = -1
-        weightArr = [0] * self._vertices
         weight = 0
 
-        for cout in range(self._vertices):
+        while min.getSize() > 0:
             
-            u = self.minKey(key,mstSet)
+            u = min.pop() 
 
             mstSet[u] = True
 
+            for v in self._graph[u]:
+                if mstSet[v[0]-1] == False and key[v[0]-1] > v[1]:
+                    key[v[0]-1] = v[1]
+                    min.update(v[0]-1,v[1])
+                    parent[v[0]-1] = u
+            
+        for w in key:
+            weight += w                
 
-            for v in range(self._vertices):
-                if v==u:
-                    continue
-                tupla = self.isAdjacent(u,v)
-                if tupla[0] and mstSet[v] == False and key[v] > tupla[1]:
-                    key[v] = tupla[1]
-                    parent[v] = u
-                    weightArr[v] = tupla[1]
-
-        for w in weightArr:
-            weight += w
-
-        with open('mst.txt', 'w')  as writer:
+        with open('mst' + f'_grafo_W_{graphN}' +'.txt', 'w')  as writer:
                 writer.write("Peso:" + str(weight) + '\n')
                 writer.write("u,v" + '\n')
                 for u, v in enumerate(parent):
