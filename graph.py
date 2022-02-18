@@ -346,10 +346,7 @@ class Graph:
         return(self._parents[v-1])  
 
     def floyd_warshall(self):
-        if (self._list):
-            d = self.toMatrix()
-        else:
-            d = copy(self._graph)
+        d = copy(self._graph)
         for v in range(self._vertices):
             for e in range(self._vertices):
                 
