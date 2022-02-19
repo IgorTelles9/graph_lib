@@ -3,6 +3,7 @@ from queue import Queue
 from p_queue import PQueue
 from math import ceil, log2
 from random import randrange
+import math
 
 class Graph: 
 
@@ -222,7 +223,7 @@ class Graph:
         """ executes dijkstra algorithm and returns a txt file with distances and path"""
 
         dist = PQueue(self._vertices)
-        path = [] 
+        parent = [-1] * self._vertices 
         dist_arr = [float('inf') for x in range(self._vertices)]
         explored = [False for x in range(self._vertices)]
 
@@ -231,10 +232,9 @@ class Graph:
         
         while (dist.getSize() > 0):
             u = dist.pop()
-            path.append(u+1)
             explored[u] = True
             if (p and u+1 == b):
-                return [path,dist_arr]
+                return [parent,dist_arr]
 
             # list
             if (self._list):
@@ -244,6 +244,7 @@ class Graph:
                     if (not(explored[v]) ):
                         if (dist_arr[v] > dist_arr[u] + p):
                             dist_arr[v] = dist_arr[u] + p
+                            parent[v] = u+1
                             dist.update(v, dist_arr[v])
             else:
                 for i, p in enumerate(self._graph[u]):
@@ -256,44 +257,58 @@ class Graph:
             with open('dijkstra.txt', 'w') as writer:
                 writer.write('dijkstra partindo do vértice' + str(s) + ':\n')
                 writer.write('distancias: ' + str(dist_arr)+ '\n')
-                writer.write('caminho: ' + str(path)+ '\n')
+                writer.write('caminho: ' + str(parent)+ '\n')
         else:
-            return [path,dist_arr]
+            return [parent,dist_arr]
 
     def getDistance(self,a,b, w=True):
         """ Returns the  shortest path between vertex a and b. """
-        filename = 'distance_' + str(a) + '_' + str(b) + '.txt'
+        filename = 'distance_path' + str(a) + '_' + str(b) + '.txt'
         if (self._weighted == True):
             if (self._negative_weighted == True):
                 pass
                 # Floyd-Warshal ou Bellman-Ford
             else:
                 result = self.dijkstra(a, write=False)
-                result = str(result[1][b-1])
+                result_dist = str(result[1][b-1])
+                result_path = str(result[0])
         else: 
             self.bfs(a, False)
             result = str(self._level[b-1])
         if (w):
             with open(filename, 'w') as writer:
-                writer.write('distancia entre ' + str(a) + '-' + str(b) + ':' + result)
+                writer.write('distancia entre ' + str(a) + '-' + str(b) + ':' + result_dist)
+                writer.write('caminho entre ' + str(a) + '-' + str(b) + ':' + result_path)
         else:
             return result
 
+
+    def parentToPath(self, parents, v):
+        path = []
+        if parents[v-1] != -1:
+            path += self.parentToPath(parents, parents[v-1])
+            path.append(v)
+        else:
+            path.append(v)
+        return path
+        
     def getPath(self, a, b, w=True):
-        filename = 'path' + str(a) + '_' + str(b) + '.txt'
+        filename = 'dist_path' + str(a) + '_' + str(b) + '.txt'
         if (self._weighted == True):
             if (self._negative_weighted == True):
                 pass
                 # Floyd-Warshal ou Bellman-Ford
             else:
                 result = self.dijkstra(a, False, True, b)
-                result = str(result[0])
+                result_path = str(self.parentToPath(result[0], b))    
+                result_dist = str(result[1][b-1])
         else: 
             self.bfs(a, False, True, b)
             result = str(self._level[b-1])
         if (w):
             with open(filename, 'w') as writer:
-                writer.write('caminho entre ' + str(a) + '-' + str(b) + ':' + result)
+                writer.write('distancia entre ' + str(a) + '-' + str(b) + ':' + result_dist)
+                writer.write('caminho entre ' + str(a) + '-' + str(b) + ':' + result_path)
         else:
             return result
 
@@ -351,7 +366,7 @@ class Graph:
         return(self._parents[v-1])  
 
     def floyd_warshall(self):
-        d = copy(self._graph)
+        d = list(self._graph)
         for v in range(self._vertices):
             for e in range(self._vertices):
                 
@@ -361,8 +376,13 @@ class Graph:
         for k in range(self._vertices):
             for i in range(self._vertices):
                for j in range(self._vertices):
-                   
-                   if d[i][j] > d[i][k] + d[k][j]:
+
+                   if i == j:
+                      if d[i][k] + d[k][j] < 0:
+                         print("Ciclo negativo caguei")
+                         return ("Algoritmo parou")
+                        
+                   elif d[i][j] > d[i][k] + d[k][j]:
                        d[i][j] = d[i][k] + d[k][j]
         return(d)
 
@@ -409,3 +429,8 @@ def primMST(self, graphN):
                 for u, v in enumerate(parent):
                     if v != -1:
                         writer.write(str(u+1) + "-" +str(v+1) + '\n')
+
+
+
+
+
